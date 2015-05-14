@@ -19,6 +19,13 @@ typedef enum
 	JWHTNOTFOUND,
 } JWHTRESULT;
 
+typedef enum
+{
+    JWHTNUMERIC,
+    JWHTSTRING,
+} JWHTVALTAG;
+    
+
 typedef struct jwHashEntry jwHashEntry;
 struct jwHashEntry
 {
@@ -28,7 +35,8 @@ struct jwHashEntry
 		double dblValue;
 		int    intValue;		
 	} key;
-	union
+    JWHTVALTAG valtag;
+    union
 	{
 		char  *strValue;
 		double dblValue;
@@ -43,6 +51,7 @@ struct jwHashTable
 	jwHashEntry **bucket;			// pointer to array of buckets
 	size_t buckets;
 	size_t bucketsinitial;			// if we resize, may need to hash multiple times
+    JWHTRESULT lastError;
 };
 
 // Create hash table
@@ -54,7 +63,7 @@ JWHTRESULT jwHashAddDblByStr( jwHashTable*, char *key, double value );
 JWHTRESULT jwHashAddIntByStr( jwHashTable*, char *key, long int value );
 
 // Delete by string
-JWHTRESULT jwHashDelByStr( jwHashTable*, char *key, long int value );
+JWHTRESULT jwHashDelByStr( jwHashTable*, char *key );
 
 // Add to table - keyed by int
 JWHTRESULT jwHashAddStrByInt( jwHashTable*, long int key, char *value );
@@ -62,7 +71,7 @@ JWHTRESULT jwHashAddDblByInt( jwHashTable*, long int key, double value );
 JWHTRESULT jwHashAddIntByInt( jwHashTable*, long int key, long int value );
 
 // Delete by int
-JWHTRESULT jwHashDelByInt( jwHashTable*, long int key, long int value );
+JWHTRESULT jwHashDelByInt( jwHashTable*, long int key );
 
 #endif
 
