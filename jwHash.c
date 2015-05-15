@@ -67,7 +67,7 @@ JWHTRESULT jwHashAddStrByStr( jwHashTable *table, char *key, char *value )
 {
 	// compute hash on key
 	size_t hash = hashString(key) % table->buckets;
-	printf("adding %s -> %s hash: %d\n",key,value,hash);
+	printf("adding %s -> %s hash: %ld\n",key,value,hash);
 
 	// add entry
 	jwHashEntry *entry = table->bucket[hash];
@@ -108,7 +108,7 @@ JWHTRESULT jwHashAddDblByStr( jwHashTable *table, char *key, double value )
 {
 	// compute hash on key
 	size_t hash = hashString(key) % table->buckets;
-	printf("adding %s -> %f hash: %d\n",key,value,hash);
+	printf("adding %s -> %f hash: %ld\n",key,value,hash);
 
 	// add entry
 	jwHashEntry *entry = table->bucket[hash];
@@ -148,16 +148,16 @@ JWHTRESULT jwHashAddIntByStr( jwHashTable *table, char *key, long int value )
 {
 	// compute hash on key
 	size_t hash = hashString(key) % table->buckets;
-	printf("adding %s -> %d hash: %d\n",key,value,hash);
+//	printf("adding %s -> %d hash: %ld\n",key,value,hash);
 
 	// add entry
 	jwHashEntry *entry = table->bucket[hash];
 	
 	// already an entry
-	printf("entry: %x\n",entry);
+//	printf("entry: %x\n",entry);
 	while(entry!=0)
 	{
-		printf("checking entry: %x\n",entry);
+//		printf("checking entry: %x\n",entry);
 		// check for already indexed
 		if(0==strcmp(entry->key.strValue,key) && value==entry->value.intValue)
 			return JWHTALREADYADDED;
@@ -172,16 +172,68 @@ JWHTRESULT jwHashAddIntByStr( jwHashTable *table, char *key, long int value )
 	}
 	
 	// create a new entry and add at head of bucket
-	printf("creating new entry\n");
+//	printf("creating new entry\n");
 	entry = (jwHashEntry *)malloc(sizeof(jwHashEntry));
-	printf("new entry: %x\n",entry);
+//	printf("new entry: %x\n",entry);
 	entry->key.strValue = copystring(key);
     entry->valtag = JWHTNUMERIC;
 	entry->value.intValue = value;
 	entry->next = table->bucket[hash];
 	table->bucket[hash] = entry;
-	printf("added entry\n");
+//	printf("added entry\n");
 	return JWHTADDED;
+}
+
+// Lookup str - keyed by str
+char * jwHashGetStrByStr( jwHashTable *table, char *key )
+{
+	// compute hash on key
+	size_t hash = hashString(key) % table->buckets;
+	printf("fetching %s -> ?? hash: %d\n",key,hash);
+
+	// get entry
+	jwHashEntry *entry = table->bucket[hash];
+	
+	// already an entry
+	while(entry)
+	{
+		// check for key
+		printf("found entry key: %d value: %s\n",entry->key.intValue,entry->value.strValue);
+		if(0==strcmp(entry->key.strValue,key))
+			return entry->value.strValue;
+		// move to next entry
+		entry = entry->next;
+	}
+	
+	// not found
+	return NULL;
+}
+
+// Lookup int - keyed by str
+JWHTRESULT jwHashGetIntByStr( jwHashTable *table, char *key, int *i )
+{
+	// compute hash on key
+	size_t hash = hashString(key) % table->buckets;
+//	printf("fetching %s -> ?? hash: %d\n",key,hash);
+
+	// get entry
+	jwHashEntry *entry = table->bucket[hash];
+	
+	// already an entry
+	while(entry)
+	{
+		// check for key
+//		printf("found entry key: %s value: %ld\n",entry->key.strValue,entry->value.intValue);
+		if(0==strcmp(entry->key.strValue,key)) {
+			*i = entry->value.intValue;
+			return 0;
+		}
+		// move to next entry
+		entry = entry->next;
+	}
+	
+	// not found
+	return 0;
 }
 
 // Delete by string
@@ -189,7 +241,7 @@ JWHTRESULT jwHashDelByStr( jwHashTable *table, char *key )
 {
 	// compute hash on key
 	size_t hash = hashString(key) % table->buckets;
-	printf("deleting: %s hash: %d\n",key,hash);
+	printf("deleting: %s hash: %ld\n",key,hash);
 
 	// add entry
 	jwHashEntry *entry = table->bucket[hash];
@@ -383,7 +435,7 @@ JWHTRESULT jwHashDelByInt( jwHashTable* table, long int key )
     return JWHTNOTFOUND;
 }
 
-// Add to table - keyed by int
+// Lookup str - keyed by int
 char * jwHashGetStrByInt( jwHashTable *table, long int key )
 {
 	// compute hash on key
@@ -411,7 +463,7 @@ char * jwHashGetStrByInt( jwHashTable *table, long int key )
 int main(int argc, char *argv[])
 {
 	// create
-	jwHashTable * table = jwHashCreate(1);
+	jwHashTable * table = jwHashCreate(1000000);
 	
 	// add a few values
 	char * str1 = "string 1";
@@ -430,7 +482,54 @@ int main(int argc, char *argv[])
 	char * sstr3 = jwHashGetStrByInt(table,2);
 	char * sstr4 = jwHashGetStrByInt(table,3);
 	char * sstr5 = jwHashGetStrByInt(table,4);
-	printf("got strings: 1->%s\n2->%s\n3->%s\n4->%s\n5->%s\n",sstr1,sstr2,sstr3,sstr4,sstr5);
+	printf("got strings: \n1->%s\n2->%s\n3->%s\n4->%s\n5->%s\n",sstr1,sstr2,sstr3,sstr4,sstr5);
+	
+	jwHashDelByInt(table, 0);
+	jwHashDelByInt(table, 1);
+	jwHashDelByInt(table, 2);
+	jwHashDelByInt(table, 3);
+	jwHashDelByInt(table, 4);
+	
+	// Test hashing by string
+	printf("hashString: %s -> %ld\n","halp",hashString("halp"));
+		
+	char * strv1 = "Jonathan";
+	char * strv2 = "Zevi";
+	char * strv3 = "Jude";
+	char * strv4 = "Voldemort";
+	
+	jwHashAddStrByStr(table,"oldest",strv1);
+	jwHashAddStrByStr(table,"2ndoldest",strv2);
+	jwHashAddStrByStr(table,"3rdoldest",strv3);
+	jwHashAddStrByStr(table,"4tholdest",strv4);
+	
+	char * sstrv1 = jwHashGetStrByStr(table,"oldest");
+	char * sstrv2 = jwHashGetStrByStr(table,"2ndoldest");
+	char * sstrv3 = jwHashGetStrByStr(table,"3rdoldest");
+	char * sstrv4 = jwHashGetStrByStr(table,"4tholdest");
+	printf("got strings:\noldest->%s \n2ndoldest->%s \n3rdoldest->%s \n4tholdest->%s\n",
+		sstrv1,sstrv2,sstrv3,sstrv4);
+	
+	// hash a million strings into various sizes of table
+	char buffer[512];
+	int i;
+	for(i=0;i<1000000;++i) {
+		sprintf(buffer,"%d",i);
+		jwHashAddIntByStr(table,buffer,i);
+	}
+	int j;
+	int error = 0;
+	for(i=0;i<1000000;++i) {
+		sprintf(buffer,"%d",i);
+		jwHashGetIntByStr(table,buffer,&j);
+		if(i!=j) {
+			printf("Error: %d != %d\n",i,j);
+			error = 1;
+		}
+	}
+	if(!error)
+		printf("No errors.\n");	
+	
 	return 0;
 }
 
