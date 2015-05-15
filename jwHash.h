@@ -12,6 +12,7 @@
 // resuts codes
 typedef enum 
 {
+	HASHOK,
 	HASHADDED,
 	HASHREPLACEDVALUE,
 	HASHALREADYADDED,
@@ -22,10 +23,10 @@ typedef enum
 typedef enum
 {
 	HASHPTR,
-    HASHNUMERIC,
-    HASHSTRING,
+	HASHNUMERIC,
+	HASHSTRING,
 } HASHVALTAG;
-    
+	
 
 typedef struct jwHashEntry jwHashEntry;
 struct jwHashEntry
@@ -34,14 +35,14 @@ struct jwHashEntry
 	{
 		char  *strValue;
 		double dblValue;
-		int    intValue;
+		int	   intValue;
 	} key;
-    HASHVALTAG valtag;
-    union
+	HASHVALTAG valtag;
+	union
 	{
 		char  *strValue;
 		double dblValue;
-		int    intValue;
+		int	   intValue;
 		void  *ptrValue;
 	} value;
 	jwHashEntry *next;
@@ -53,7 +54,7 @@ struct jwHashTable
 	jwHashEntry **bucket;			// pointer to array of buckets
 	size_t buckets;
 	size_t bucketsinitial;			// if we resize, may need to hash multiple times
-    HASHRESULT lastError;
+	HASHRESULT lastError;
 };
 
 // Create/delete hash table
