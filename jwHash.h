@@ -12,18 +12,19 @@
 // resuts codes
 typedef enum 
 {
-	JWHTADDED,
-	JWHTREPLACEDVALUE,
-	JWHTALREADYADDED,
-	JWHTDELETED,
-	JWHTNOTFOUND,
-} JWHTRESULT;
+	HASHADDED,
+	HASHREPLACEDVALUE,
+	HASHALREADYADDED,
+	HASHDELETED,
+	HASHNOTFOUND,
+} HASHRESULT;
 
 typedef enum
 {
-    JWHTNUMERIC,
-    JWHTSTRING,
-} JWHTVALTAG;
+	HASHPTR,
+    HASHNUMERIC,
+    HASHSTRING,
+} HASHVALTAG;
     
 
 typedef struct jwHashEntry jwHashEntry;
@@ -33,14 +34,15 @@ struct jwHashEntry
 	{
 		char  *strValue;
 		double dblValue;
-		int    intValue;		
+		int    intValue;
 	} key;
-    JWHTVALTAG valtag;
+    HASHVALTAG valtag;
     union
 	{
 		char  *strValue;
 		double dblValue;
-		int    intValue;		
+		int    intValue;
+		void  *ptrValue;
 	} value;
 	jwHashEntry *next;
 };
@@ -51,27 +53,42 @@ struct jwHashTable
 	jwHashEntry **bucket;			// pointer to array of buckets
 	size_t buckets;
 	size_t bucketsinitial;			// if we resize, may need to hash multiple times
-    JWHTRESULT lastError;
+    HASHRESULT lastError;
 };
 
-// Create hash table
-jwHashTable *jwHashCreate( size_t buckets );
+// Create/delete hash table
+jwHashTable *create_hash( size_t buckets );
+void *delete_hash( jwHashTable *table );		// clean up all memory
+
 
 // Add to table - keyed by string
-JWHTRESULT jwHashAddStrByStr( jwHashTable*, char *key, char *value );
-JWHTRESULT jwHashAddDblByStr( jwHashTable*, char *key, double value );
-JWHTRESULT jwHashAddIntByStr( jwHashTable*, char *key, long int value );
+HASHRESULT add_str_by_str( jwHashTable*, char *key, char *value );
+HASHRESULT add_dbl_by_str( jwHashTable*, char *key, double value );
+HASHRESULT add_int_by_str( jwHashTable*, char *key, long int value );
+HASHRESULT add_ptr_by_str( jwHashTable*, char *key, void *value );
 
 // Delete by string
-JWHTRESULT jwHashDelByStr( jwHashTable*, char *key );
+HASHRESULT del_by_str( jwHashTable*, char *key );
+
+// Get by string
+HASHRESULT get_str_by_str( jwHashTable *table, char *key, char **value );
+HASHRESULT get_int_by_str( jwHashTable *table, char *key, int *i );
+HASHRESULT get_dbl_by_str( jwHashTable *table, char *key, double *val );
+
 
 // Add to table - keyed by int
-JWHTRESULT jwHashAddStrByInt( jwHashTable*, long int key, char *value );
-JWHTRESULT jwHashAddDblByInt( jwHashTable*, long int key, double value );
-JWHTRESULT jwHashAddIntByInt( jwHashTable*, long int key, long int value );
+HASHRESULT add_str_by_int( jwHashTable*, long int key, char *value );
+HASHRESULT add_dbl_by_int( jwHashTable*, long int key, double value );
+HASHRESULT add_int_by_int( jwHashTable*, long int key, long int value );
+HASHRESULT add_ptr_by_int( jwHashTable*, long int key, void *value );
 
 // Delete by int
-JWHTRESULT jwHashDelByInt( jwHashTable*, long int key );
+HASHRESULT del_by_int( jwHashTable*, long int key );
+
+// Get by int
+HASHRESULT get_str_by_int( jwHashTable *table, long int key, char **value );
+HASHRESULT get_int_by_int( jwHashTable *table, long int key, int *i );
+HASHRESULT get_dbl_by_int( jwHashTable *table, long int key, double *val );
 
 #endif
 
