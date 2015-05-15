@@ -9,6 +9,13 @@
 // needed for size_t
 #include <stddef.h>
 
+#ifdef HASHDEBUG
+# define HASH_DEBUG(fmt,args...) printf(fmt, ## args)
+#else
+# define HASH_DEBUG(fmt,args...) do {} while (0);
+#endif
+
+
 // resuts codes
 typedef enum 
 {
