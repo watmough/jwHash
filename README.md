@@ -116,8 +116,8 @@ of key value pairs.
 
 ### Example 2 - Write and Read Key Value Pairs on Multiple Threads
 
-#define NUMTHREADS 8
-#define HASHCOUNT 1000000
+	#define NUMTHREADS 8
+	#define HASHCOUNT 1000000
 
 	typedef struct threadinfo {jwHashTable *table; int start;} threadinfo;
 	void * thread_func(void *arg)
