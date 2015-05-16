@@ -27,7 +27,7 @@ limitations under the License.
 
 // http://stackoverflow.com/a/12996028
 // hash function for int keys
-static long int hashInt(long int x)
+static inline long int hashInt(long int x)
 {
 	x = ((x >> 16) ^ x) * 0x45d9f3b;
 	x = ((x >> 16) ^ x) * 0x45d9f3b;
@@ -37,7 +37,7 @@ static long int hashInt(long int x)
 
 // http://www.cse.yorku.ca/~oz/hash.html
 // hash function for string keys djb2
-static long int hashString(char * str)
+static inline long int hashString(char * str)
 {
 	unsigned long hash = 5381;
 	int c;
@@ -48,7 +48,7 @@ static long int hashString(char * str)
 }
 
 // helper for copying string keys and values
-static char * copystring(char * value)
+static inline char * copystring(char * value)
 {
 	char * copy = (char *)malloc(strlen(value)+1);
 	if(!copy) {
