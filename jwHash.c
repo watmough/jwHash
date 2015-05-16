@@ -632,8 +632,6 @@ int basic_test()
 	del_by_int(table, 4);
 	
 	// Test hashing by string
-	printf("hashString: %s -> %ld\n","halp",hashString("halp"));
-		
 	char * strv1 = "Jonathan";
 	char * strv2 = "Zevi";
 	char * strv3 = "Jude";
