@@ -25,6 +25,25 @@ Performance seems decent. Saving 1,000,000 int values by string key is done in a
 
 Type make in the folder to build the code. Type ./jwHash to run the demo.
 
+## References
+
+The following were key to getting various aspects working:
+
+Hash function for integer keys.
+
+	// http://stackoverflow.com/a/12996028
+	// hash function for int keys
+
+Hash function for string keys.
+
+	// http://www.cse.yorku.ca/~oz/hash.html
+	// hash function for string keys djb2
+
+Efficient lock when low-contention is expected.
+
+	// Spin-locking
+	// http://stackoverflow.com/questions/1383363/is-my-spin-lock-implementation-correct-and-optimal
+
 ## Data Structures
 
 ### Hash Table

@@ -30,6 +30,9 @@ limitations under the License.
 ////////////////////////////////////////////////////////////////////////////////
 // STATIC HELPER FUNCTIONS
 
+// Spin-locking
+// http://stackoverflow.com/questions/1383363/is-my-spin-lock-implementation-correct-and-optimal
+
 // http://stackoverflow.com/a/12996028
 // hash function for int keys
 static inline long int hashInt(long int x)
