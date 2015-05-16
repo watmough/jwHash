@@ -1,11 +1,26 @@
-////////////////////////////////////////////////////////////////////////////////
+/*
 
-////////////////////////////////////////////////////////////////////////////////
+Copyright 2015 Jonathan Watmough
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "jwHash.h"
+
+#ifdef HASHTEST
+#include <sys/time.h>
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // STATIC HELPER FUNCTIONS
@@ -545,10 +560,11 @@ HASHRESULT get_str_by_int( jwHashTable *table, long int key, char **value )
 }
 
 #ifdef HASHTEST
+#define HASHCOUNT 1000000
 int test()
 {
 	// create
-	jwHashTable * table = create_hash(1000000);
+	jwHashTable * table = create_hash(HASHCOUNT);
 	
 	// add a few values
 	char * str1 = "string 1";
@@ -595,16 +611,21 @@ int test()
 	printf("got strings:\noldest->%s \n2ndoldest->%s \n3rdoldest->%s \n4tholdest->%s\n",
 		sstrv1,sstrv2,sstrv3,sstrv4);
 	
+
+
 	// hash a million strings into various sizes of table
+	struct timeval tval_before, tval_done1, tval_done2, tval_writehash, tval_readhash;
+	gettimeofday(&tval_before, NULL);
 	char buffer[512];
 	int i;
-	for(i=0;i<1000000;++i) {
+	for(i=0;i<HASHCOUNT;++i) {
 		sprintf(buffer,"%d",i);
 		add_int_by_str(table,buffer,i);
 	}
+	gettimeofday(&tval_done1, NULL);
 	int j;
 	int error = 0;
-	for(i=0;i<1000000;++i) {
+	for(i=0;i<HASHCOUNT;++i) {
 		sprintf(buffer,"%d",i);
 		get_int_by_str(table,buffer,&j);
 		if(i!=j) {
@@ -612,8 +633,15 @@ int test()
 			error = 1;
 		}
 	}
-	if(!error)
+	if(!error) {
 		printf("No errors.\n"); 
+	}
+	gettimeofday(&tval_done2, NULL);
+	timersub(&tval_done1, &tval_before, &tval_writehash);
+	timersub(&tval_done2, &tval_done1, &tval_readhash);
+	printf("Store %d ints by string: %ld.%06ld sec, read %d ints: %ld.%06ld sec\n",HASHCOUNT,
+		(long int)tval_writehash.tv_sec, (long int)tval_writehash.tv_usec,HASHCOUNT,
+		(long int)tval_readhash.tv_sec, (long int)tval_readhash.tv_usec);
 	
 	return 0;
 }
