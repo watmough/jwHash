@@ -3,8 +3,7 @@
 I just wanted a simple and straightforward hash table implementation that I could drop into my
 own C-based projects on whatever platform.
 
-I haven't implemented one of these before, so it may be super naive, but it does appear to work and
-my implementation choices appear reasonable.
+I haven't implemented one of these before, so it may be super naive, but it does appear to work pretty well.
 
 ## Features
 
@@ -17,6 +16,10 @@ All strings saved in a hash table are copied, and copies of strings are returned
 
 I added locking on hash buckets which only minorly affects performance, and allows safe retrieval and storing
 of key value pairs.
+
+## Building and Using
+
+Type make in the folder to build the code. Type ./jwHash to run the demo.
 
 ## Data Structures
 
@@ -67,8 +70,8 @@ of key value pairs.
 ### Storing by String Key
 
 	HASHRESULT add_str_by_str( jwHashTable*, char *key, char *value );
-	HASHRESULT add_dbl_by_str( jwHashTable*, char *key, double value );
 	HASHRESULT add_int_by_str( jwHashTable*, char *key, long int value );
+	HASHRESULT add_dbl_by_str( jwHashTable*, char *key, double value );
 	HASHRESULT add_ptr_by_str( jwHashTable*, char *key, void *value );
 
 ### Deleting by String
@@ -80,6 +83,7 @@ of key value pairs.
 	HASHRESULT get_str_by_str( jwHashTable *table, char *key, char **value );
 	HASHRESULT get_int_by_str( jwHashTable *table, char *key, int *i );
 	HASHRESULT get_dbl_by_str( jwHashTable *table, char *key, double *val );
+	HASHRESULT get_ptr_by_str( jwHashTable *table, char *key, void **val );
 
 [Similar for long int keys]
 
