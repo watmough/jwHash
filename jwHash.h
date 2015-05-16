@@ -13,6 +13,10 @@ limitations under the License.
 
 */
 
+//#define HASHTHREADED  1
+//#define HASHTEST      1
+//#define HASHDEBUG     1
+
 // guards! guards!
 #ifndef jwhash_h
 #define jwhash_h
@@ -73,6 +77,10 @@ struct jwHashTable
 	size_t buckets;
 	size_t bucketsinitial;			// if we resize, may need to hash multiple times
 	HASHRESULT lastError;
+#ifdef HASHTHREADED
+	volatile int *locks;			// array of locks
+	volatile int lock;				// lock for entire table
+#endif
 };
 
 // Create/delete hash table

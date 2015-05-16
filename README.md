@@ -17,12 +17,14 @@ All strings saved in a hash table are copied, and copies of strings are returned
 
 ## TODO
 
-1. Allow building to support multi-threading,
-2. Implement clean-up.
+1. Support multi-threading,
+2. Implement clean-up,
+3. Implement re-hashing to a larger hash table,
+4. Implement a callback to allow iterating through keys, values
 
 ## API
 
-###
+
 
 ## Example
 

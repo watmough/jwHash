@@ -4,7 +4,7 @@ Copyright 2015 Jonathan Watmough
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,11 @@ limitations under the License.
 
 #ifdef HASHTEST
 #include <sys/time.h>
+#endif
+
+#ifdef HASHTHREADED
+#include <pthread.h>
+#include <semaphore.h>
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,6 +77,16 @@ jwHashTable *create_hash( size_t buckets )
 		// unable to allocate
 		return NULL;
 	}
+	// locks
+#ifdef HASHTHREADED
+	table->lock = 0;
+	table->locks = (int *)malloc(buckets * sizeof(int));
+	if( !table->locks ) {
+		free(table);
+		return NULL;
+	}
+	memset((int *)&table->locks[0],0,buckets*sizeof(int));
+#endif
 	// setup
 	table->bucket = (jwHashEntry **)malloc(buckets*sizeof(void*));
 	if( !table->bucket ) {
@@ -172,10 +187,27 @@ HASHRESULT add_dbl_by_str( jwHashTable *table, char *key, double value )
 HASHRESULT add_int_by_str( jwHashTable *table, char *key, long int value )
 {
 	// compute hash on key
-	size_t hash = hashString(key) % table->buckets;
+	size_t hash = hashString(key);
+//#ifdef HASHTHREADED
+//	// it's really slow to lock the whole table
+//	while (__sync_lock_test_and_set(&table->lock, 1)) {
+//		// Do nothing. This GCC builtin instruction
+//		// ensures memory barrier.
+//	  }
+//#endif
+	hash %= table->buckets;
 	HASH_DEBUG("adding %s -> %d hash: %ld\n",key,value,hash);
 
-	// add entry
+#ifdef HASHTHREADED
+	// lock this bucket against changes
+	while (__sync_lock_test_and_set(&table->locks[hash], 1)) {
+		printf(".");
+		// Do nothing. This GCC builtin instruction
+		// ensures memory barrier.
+	  }
+#endif
+
+	// check entry
 	jwHashEntry *entry = table->bucket[hash];
 	
 	// already an entry
@@ -206,6 +238,15 @@ HASHRESULT add_int_by_str( jwHashTable *table, char *key, long int value )
 	entry->next = table->bucket[hash];
 	table->bucket[hash] = entry;
 	HASH_DEBUG("added entry\n");
+unlock:
+#ifdef HASHTHREADED
+	__sync_synchronize(); // memory barrier
+	table->locks[hash] = 0;
+#endif
+#ifdef HASHTHREADED
+	__sync_synchronize(); // memory barrier
+	table->lock = 0;
+#endif
 	return HASHOK;
 }
 
@@ -560,11 +601,10 @@ HASHRESULT get_str_by_int( jwHashTable *table, long int key, char **value )
 }
 
 #ifdef HASHTEST
-#define HASHCOUNT 1000000
-int test()
+int basic_test()
 {
 	// create
-	jwHashTable * table = create_hash(HASHCOUNT);
+	jwHashTable * table = create_hash(10);
 	
 	// add a few values
 	char * str1 = "string 1";
@@ -610,21 +650,50 @@ int test()
 	char * sstrv4; get_str_by_str(table,"4tholdest",&sstrv4);
 	printf("got strings:\noldest->%s \n2ndoldest->%s \n3rdoldest->%s \n4tholdest->%s\n",
 		sstrv1,sstrv2,sstrv3,sstrv4);
-	
+}	
 
+#define NUMTHREADS 8
+#define HASHCOUNT 1000000
+
+typedef struct threadinfo {jwHashTable *table; int start;} threadinfo;
+void * thread_func(void *arg)
+{
+	threadinfo *info = arg;
+	char buffer[512];
+	int i = info->start;
+	jwHashTable *table = info->table;
+	free(info);
+	for(;i<HASHCOUNT;i+=NUMTHREADS) {
+		sprintf(buffer,"%d",i);
+		add_int_by_str(table,buffer,i);
+	}
+}
+
+
+int thread_test()
+{
+	// create
+	jwHashTable * table = create_hash(HASHCOUNT>>2);
 
 	// hash a million strings into various sizes of table
 	struct timeval tval_before, tval_done1, tval_done2, tval_writehash, tval_readhash;
 	gettimeofday(&tval_before, NULL);
-	char buffer[512];
-	int i;
-	for(i=0;i<HASHCOUNT;++i) {
-		sprintf(buffer,"%d",i);
-		add_int_by_str(table,buffer,i);
+	int t;
+	pthread_t * threads[NUMTHREADS];
+	for(t=0;t<NUMTHREADS;++t) {
+		pthread_t * pth = malloc(sizeof(pthread_t));
+		threads[t] = pth;
+		threadinfo *info = (threadinfo*)malloc(sizeof(threadinfo));
+		info->table = table; info->start = t;
+		pthread_create(pth,NULL,thread_func,info);
+	}
+	for(t=0;t<NUMTHREADS;++t) {
+		pthread_join(*threads[t], NULL);
 	}
 	gettimeofday(&tval_done1, NULL);
-	int j;
+	int i,j;
 	int error = 0;
+	char buffer[512];
 	for(i=0;i<HASHCOUNT;++i) {
 		sprintf(buffer,"%d",i);
 		get_int_by_str(table,buffer,&j);
@@ -639,6 +708,7 @@ int test()
 	gettimeofday(&tval_done2, NULL);
 	timersub(&tval_done1, &tval_before, &tval_writehash);
 	timersub(&tval_done2, &tval_done1, &tval_readhash);
+	printf("\n%d threads.\n",NUMTHREADS);
 	printf("Store %d ints by string: %ld.%06ld sec, read %d ints: %ld.%06ld sec\n",HASHCOUNT,
 		(long int)tval_writehash.tv_sec, (long int)tval_writehash.tv_usec,HASHCOUNT,
 		(long int)tval_readhash.tv_sec, (long int)tval_readhash.tv_usec);
@@ -649,7 +719,8 @@ int test()
 
 int main(int argc, char *argv[])
 {
-	test();
+	basic_test();
+	thread_test();
 	return 0;
 }
 
