@@ -19,13 +19,11 @@ of key value pairs.
 
 Performance seems decent. Saving 1,000,000 int values by string key is done in about 0.28 secs, and multi-threaded performance scales pretty closely with number of processors.
 
-
+![Performance Chart](http://jonathanwatmough.com/misc/jwHashPerformance.png)
 
 ## Building and Using
 
 Type make in the folder to build the code. Type ./jwHash to run the demo.
-
-![Performance Chart](http://jonathanwatmough.com/misc/jwHashPerformance.png)
 
 ## Data Structures
 
