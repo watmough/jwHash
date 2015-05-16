@@ -31,18 +31,18 @@ The following were key to getting various aspects working:
 
 Hash function for integer keys.
 
-	// http://stackoverflow.com/a/12996028
+	// [http://stackoverflow.com/a/12996028](http://stackoverflow.com/a/12996028)
 	// hash function for int keys
 
 Hash function for string keys.
 
-	// http://www.cse.yorku.ca/~oz/hash.html
+	// [http://www.cse.yorku.ca/~oz/hash.html](http://www.cse.yorku.ca/~oz/hash.html)
 	// hash function for string keys djb2
 
 Efficient lock when low-contention is expected.
 
+	// [http://stackoverflow.com/questions/1383363/is-my-spin-lock-implementation-correct-and-optimal](http://stackoverflow.com/questions/1383363/is-my-spin-lock-implementation-correct-and-optimal)
 	// Spin-locking
-	// http://stackoverflow.com/questions/1383363/is-my-spin-lock-implementation-correct-and-optimal
 
 ## Data Structures
 
