@@ -17,9 +17,15 @@ All strings saved in a hash table are copied, and copies of strings are returned
 I added locking on hash buckets which only minorly affects performance, and allows safe retrieval and storing
 of key value pairs.
 
+Performance seems decent. Saving 1,000,000 int values by string key is done in about 0.28 secs, and multi-threaded performance scales pretty closely with number of processors.
+
+
+
 ## Building and Using
 
 Type make in the folder to build the code. Type ./jwHash to run the demo.
+
+![Performance Chart](http://jonathanwatmough.com/misc/jwHashPerformance.png)
 
 ## Data Structures
 
