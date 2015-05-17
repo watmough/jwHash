@@ -23,7 +23,7 @@ Performance seems decent. Saving 1,000,000 int values by string key is done in a
 
 ## Building and Using
 
-Type make in the folder to build the code. Type ./jwHash to run the demo.
+Type make in the folder to build the code. Type ./test to run the demo.
 
 ## References
 

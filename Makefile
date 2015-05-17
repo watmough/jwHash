@@ -1,19 +1,19 @@
 
 
 CC=gcc-4.9
-CFLAGS = -lpthread
+CFLAGS = -lpthread -O3
 DEFS = -DHASHTEST -DHASHTHREADED
 DEPS = jwHash.h
-OBJ = jwHash.o
+OBJ = test.o jwHash.o
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(DEFS)
 
-jwHash: $(OBJ)
+test: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
 .PHONY:
 	clean
 
 clean:
-	rm *.o jwHash *.s
+	rm *.o test *.s
