@@ -191,13 +191,6 @@ HASHRESULT add_int_by_str( jwHashTable *table, char *key, long int value )
 {
 	// compute hash on key
 	size_t hash = hashString(key);
-//#ifdef HASHTHREADED
-//	// it's really slow to lock the whole table
-//	while (__sync_lock_test_and_set(&table->lock, 1)) {
-//		// Do nothing. This GCC builtin instruction
-//		// ensures memory barrier.
-//	  }
-//#endif
 	hash %= table->buckets;
 	HASH_DEBUG("adding %s -> %d hash: %ld\n",key,value,hash);
 
@@ -245,10 +238,6 @@ unlock:
 #ifdef HASHTHREADED
 	__sync_synchronize(); // memory barrier
 	table->locks[hash] = 0;
-#endif
-#ifdef HASHTHREADED
-	__sync_synchronize(); // memory barrier
-	table->lock = 0;
 #endif
 	return HASHOK;
 }

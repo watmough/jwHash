@@ -34,9 +34,11 @@ int main(int argc, char *argv[])
 	if( 0==basic_test() ) {
 		printf("basic_test:\tPassed\n");
 	}
+#ifdef HASHTHREADED
 	if( 0==thread_test() ) {
 		printf("thread_test:\tPassed\n");
 	}
+#endif
 	return 0;
 }
 
@@ -94,7 +96,9 @@ int basic_test()
 	return 0;
 }	
 
-#define NUMTHREADS 4
+#ifdef HASHTHREADED
+
+#define NUMTHREADS 6
 #define HASHCOUNT 1000000
 
 typedef struct threadinfo {jwHashTable *table; int start;} threadinfo;
@@ -158,4 +162,5 @@ int thread_test()
 	return 0;
 }
 
+#endif
 #endif
