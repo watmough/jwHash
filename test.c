@@ -26,6 +26,22 @@ limitations under the License.
 #include <semaphore.h>
 #endif
 
+#ifdef _WIN32
+static inline void timersub(
+	const struct timeval *t1,
+	const struct timeval *t2,
+	struct timeval *res)
+{
+	res->tv_sec = t1->tv_sec - t2->tv_sec;
+	if( t1->tv_usec - t2->tv_usec < 0 ) {
+		res->tv_sec--;
+		res->tv_usec = t1->tv_usec - t2->tv_usec + 1000 * 1000;
+	} else {
+		res->tv_usec = t1->tv_usec - t2->tv_usec;
+	}
+}
+#endif
+
 int basic_test();
 int thread_test();
 
