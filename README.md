@@ -5,6 +5,8 @@ own C-based projects on whatever platform.
 
 I haven't implemented one of these before, so it may be super naive, but it does appear to work pretty well.
 
+NOTE: After exposure on HN, and seeing other hash implementations, I'm planning to restructure the code to a macro-based style, which should cut down the duplication.
+
 ## Features
 
 You can create a hash table, and add strings, long ints, doubles and pointers to it, keyed by strings
