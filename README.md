@@ -25,7 +25,20 @@ Performance seems decent. Saving 1,000,000 int values by string key is done in a
 
 ## Building and Using
 
-Type make in the folder to build the code. Type ./test to run the demo.
+Building code:
+```
+$ mkdir build/
+$ meson build/ --buildtype=release
+$ ninja-build build/
+```
+Run demo:
+```
+$ ./build/jwHash-test
+```
+or
+```
+$ ninja-build test build/
+```
 
 ## References
 

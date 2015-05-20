@@ -1,0 +1,6 @@
+project('jwHash', 'c')
+add_global_arguments('-DHASHTHREADED', language: 'c')
+add_global_arguments('-DHASHTEST', language: 'c')
+jwhash_lib = shared_library('jwHash', 'jwHash.c', link_args: '-lpthread')
+t = executable('jwHash-test', 'test.c', link_with: jwhash_lib, link_args: '-lpthread')
+test('jwHash test', t)
