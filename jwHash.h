@@ -31,7 +31,7 @@ limitations under the License.
 #endif
 
 
-// resuts codes
+// result codes
 typedef enum 
 {
 	HASHOK,
